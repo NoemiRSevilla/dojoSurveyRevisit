@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dojo Survey</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+    crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script>
+    $(document).ready(function () {
+
+            var socket = io(); //initially the client will request a web page from tdhe server by connecting to our server via our port "localhost:1337". The server then sends back the index.html file as shown above. The script will run on the client's browser and connect to our server via sockets.
+
+            $("#surveyInfo").submit(function(e){
+                e.preventDefault();
+                var surveyData = $(this).serializeArray();
+            
+                socket.emit('posting_form', {survey: surveyData});
+            })
+
+            socket.on('updated_message', function (g) { //The server's listener with the matching 'thank you' label will be triggered...
+            // console.log(data); //...and invoke its callback.
+            // console.log(g.dataSurvey);
+            // console.log(g.rand);
+
+            var data = g.dataSurvey;
+            var rand = g.rand;
+
+            // console.log(data);
+
+            var h3 = document.createElement("h3");
+            // console.log(data[0].value);
+            // console.log(x.location.value);
+            h3.innerHTML = `You emitted the following information to the server { name: '${data[0].value}', location: '${data[1].value}', favorite language: '${data[2].value}', comments: ';data[3].value}'}
+            
+            Your lucky number emitted by the server is ${rand}.`
+
+            $("#response").append(h3);
+            //Then the server will emit a message 'greeting' to the client, because we placed an emit event there. 
+            });
+        })
+    </script>
+    <script type="text/javascript"></script>
+</head>
+
+<body>
+    <div id="response"></div>
+    <div class="box">
+        <h1>Dojo Survey</h1>
+        <form id="surveyInfo" action='/submit' method='post'>
+            Full Name: <input type='text' name='name'>
+            <p>Dojo Location:
+                <select name="dojo_location">
+                    <option value="Chicago">Chicago, IL</option>
+                    <option value="San Francisco">San Francisco, CA</option>
+                    <option value="Tysons">Tysons Corner, VA</option>
+                    <option value="Dalls">Dallas, TX</option>
+                </select>
+            </p>
+            <p>Favorite Language:
+                <select name="favorite_language">
+                    <option value="CSS">CSS</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="HTML">HTML</option>
+                    <option value="Java">Java</option>
+                </select>
+            </p>
+            <p>Comments (optional):
+                <textarea name="comments" id="description"></textarea>
+                <p><input type="submit" value="Submit"></p>
+        </form>
+    </div>
+</body>
+</html>
